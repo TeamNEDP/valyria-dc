@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -22,6 +23,8 @@ func Start(listen ...string) error {
 
 	userEndpoints(g.Group("/api/user"))
 	scriptEndpoints(g.Group("/api/script"))
+
+	g.NoRoute(static.Serve("/", static.LocalFile("frontend", false)))
 
 	return g.Run(listen...)
 }
