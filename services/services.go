@@ -21,6 +21,7 @@ func Start(listen ...string) error {
 	}
 
 	userEndpoints(g.Group("/api/user"))
+	scriptEndpoints(g.Group("/api/script"))
 
 	return g.Run(listen...)
 }

@@ -13,3 +13,15 @@ func (u User) Info() UserInfo {
 		Email: u.Email,
 	}
 }
+
+type ScriptInfo struct {
+	Name string `json:"name"`
+	Code string `json:"code"`
+}
+
+func (s UserScript) Info() ScriptInfo {
+	return ScriptInfo{
+		Name: s.Name,
+		Code: s.Code,
+	}
+}
