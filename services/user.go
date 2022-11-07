@@ -1,8 +1,13 @@
 package services
 
 import (
+	"bytes"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"image"
+	"image/jpeg"
+	"io"
+	"net/http"
 	"valyria-dc/model"
 )
 
@@ -21,6 +26,20 @@ func userEndpoints(r *gin.RouterGroup) {
 	r.POST("", userRegister)
 	r.POST("/login", userLogin)
 	r.POST("/logout", AuthRequired(), userLogout)
+	r.POST("/avatar", AuthRequired(), userChangeAvatar)
+	r.GET("/:id/avatar", queryUser, userAvatar)
+}
+
+func queryUser(ctx *gin.Context) {
+	id := ctx.Param("id")
+	user := model.User{}
+	err := db.Where("id=?", id).First(&user).Error
+	if err != nil {
+		ctx.JSON(notFound("user not found"))
+		ctx.Abort()
+		return
+	}
+	ctx.Set("pathUser", user)
 }
 
 func userRegister(ctx *gin.Context) {
@@ -86,4 +105,63 @@ func userLogin(ctx *gin.Context) {
 func userLogout(ctx *gin.Context) {
 	ctx.SetCookie("session_id", "", 0, "/", "", false, false)
 	ctx.JSON(resOk(nil))
+}
+
+func userChangeAvatar(ctx *gin.Context) {
+	user := ctx.MustGet("user").(model.User)
+	ff, err := ctx.FormFile("avatar")
+	if err != nil {
+		ctx.JSON(invalidParams("malformed multipart form"))
+		return
+	}
+	if ff.Size > 2*1024*1024 {
+		ctx.JSON(invalidParams("file size too large"))
+		return
+	}
+	f, err := ff.Open()
+	if err != nil {
+		ctx.JSON(invalidParams("failed to open form file"))
+		return
+	}
+	defer f.Close()
+	conf, _, err := image.DecodeConfig(f)
+
+	if conf.Width > 2000 || conf.Height > 2000 || conf.Width != conf.Height {
+		ctx.JSON(invalidParams("image size too large or aspect ratio is not 1:1"))
+		return
+	}
+
+	_, err = f.Seek(0, io.SeekStart)
+
+	if err != nil {
+		ctx.JSON(internalError("failed to seek"))
+		return
+	}
+
+	img, _, err := image.Decode(f)
+	if err != nil {
+		ctx.JSON(internalError("failed to decode img"))
+		return
+	}
+
+	w := new(bytes.Buffer)
+	err = jpeg.Encode(w, img, nil)
+	if err != nil {
+		ctx.JSON(internalError("failed to encode jpeg"))
+		return
+	}
+
+	user.Avatar = w.Bytes()
+	err = db.Save(&user).Error
+	if err != nil {
+		ctx.JSON(internalError(err))
+		return
+	}
+
+	ctx.JSON(resOk(nil))
+}
+
+func userAvatar(ctx *gin.Context) {
+	user := ctx.MustGet("pathUser").(model.User)
+	ctx.Data(http.StatusOK, "image/jpeg", user.Avatar)
 }
