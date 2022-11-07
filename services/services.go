@@ -20,6 +20,8 @@ func Start(listen ...string) error {
 		return err
 	}
 
+	userEndpoints(g.Group("/api/user"))
+
 	return g.Run(listen...)
 }
 
