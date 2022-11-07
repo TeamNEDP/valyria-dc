@@ -1,0 +1,3 @@
+[submodule "frontend"]
+	path = frontend
+	url = https://git.s8k.top/TeamNEDP/Valyria-frontend.git
