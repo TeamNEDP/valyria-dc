@@ -13,9 +13,9 @@ type User struct {
 
 type UserScript struct {
 	gorm.Model
-	UserID string
+	UserID string `gorm:"uniqueIndex:idx_user_script_name"`
 	User   User
-	Name   string
+	Name   string `gorm:"uniqueIndex:idx_user_script_name"`
 	Code   string
 }
 
