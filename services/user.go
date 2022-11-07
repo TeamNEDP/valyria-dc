@@ -28,6 +28,10 @@ func userEndpoints(r *gin.RouterGroup) {
 	r.POST("/logout", AuthRequired(), userLogout)
 	r.POST("/avatar", AuthRequired(), userChangeAvatar)
 	r.GET("/:id/avatar", queryUser, userAvatar)
+	r.GET("/info", AuthRequired(), func(ctx *gin.Context) {
+		user := ctx.MustGet("user").(model.User)
+		ctx.JSON(resOk(user.Info()))
+	})
 }
 
 func queryUser(ctx *gin.Context) {
