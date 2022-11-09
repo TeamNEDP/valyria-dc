@@ -43,6 +43,9 @@ func allocateGame(process GameProcess) {
 	sessionsMu.Lock()
 	defer sessionsMu.Unlock()
 
+	process.Ticks = nil
+	process.lastUpdated = time.Now()
+
 	for _, session := range sessions {
 		session.mu.Lock()
 		if !session.authorized {
