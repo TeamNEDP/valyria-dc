@@ -10,7 +10,6 @@ import (
 	"os"
 	"sync"
 	"time"
-	"valyria-dc/services"
 )
 
 type simulatorSession struct {
@@ -24,6 +23,8 @@ type simulatorSession struct {
 
 var sessions = map[string]*simulatorSession{}
 var sessionsMu = sync.Mutex{}
+
+var handleGameEnd = func(process GameProcess, result GameResult) {}
 
 func ServeWs(w http.ResponseWriter, r *http.Request) {
 	upgrader := websocket.Upgrader{}
@@ -126,7 +127,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 				delete(lives, data.ID)
 				livesMu.Unlock()
 				gamesMu.Lock()
-				services.HandleGameEnd(games[data.ID], data.Result)
+				handleGameEnd(games[data.ID], data.Result)
 				delete(games, data.ID)
 				gamesMu.Unlock()
 			}
@@ -139,4 +140,8 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 	}
+}
+
+func OnGameEnd(handler func(process GameProcess, result GameResult)) {
+	handleGameEnd = handler
 }

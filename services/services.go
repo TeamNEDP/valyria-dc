@@ -16,6 +16,8 @@ import (
 var db *gorm.DB
 
 func Start(listen ...string) error {
+	game.OnGameEnd(handleGameEnd)
+
 	g := gin.Default()
 
 	if err := initDb(); err != nil {
