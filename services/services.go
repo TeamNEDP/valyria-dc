@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"valyria-dc/game"
 	"valyria-dc/model"
 )
 
@@ -23,6 +24,9 @@ func Start(listen ...string) error {
 
 	userEndpoints(g.Group("/api/user"))
 	scriptEndpoints(g.Group("/api/script"))
+	g.GET("/api/simulator", func(ctx *gin.Context) {
+		game.ServeWs(ctx.Writer, ctx.Request)
+	})
 
 	g.NoRoute(static.Serve("/", static.LocalFile("frontend", false)))
 
