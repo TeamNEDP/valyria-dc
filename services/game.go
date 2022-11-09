@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/gin-gonic/gin"
 	"log"
 	"valyria-dc/game"
 	"valyria-dc/model"
@@ -20,4 +21,12 @@ func HandleGameEnd(process game.GameProcess, result game.GameResult) {
 	g.Finished = true
 
 	db.Save(&g)
+}
+
+func gameEndpoints(r *gin.RouterGroup) {
+	g := r.Group("", AuthRequired())
+
+	g.GET("/:id/live", func(ctx *gin.Context) {
+		game.ServeLive(ctx.Param("id"), ctx.Writer, ctx.Request)
+	})
 }

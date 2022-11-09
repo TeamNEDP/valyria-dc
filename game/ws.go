@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"time"
 	"valyria-dc/services"
 )
 
@@ -48,6 +49,14 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	sessionsMu.Lock()
 	sessions[sessionId] = &session
 	sessionsMu.Unlock()
+
+	defer conn.Close()
+
+	_ = conn.SetReadDeadline(time.Now().Add(time.Second * 60))
+	conn.SetPongHandler(func(string) error {
+		_ = conn.SetReadDeadline(time.Now().Add(time.Second * 60))
+		return nil
+	})
 
 	go func() {
 		defer func() {
@@ -99,7 +108,9 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 				game, ok := games[data.ID]
 				if ok && game.allocatedSession == session.id {
 					game.Ticks = append(game.Ticks, data.Tick)
-					// TODO: trigger live update
+					livesMu.Lock()
+					lives[data.ID].Send(data.Tick)
+					livesMu.Unlock()
 				}
 				gamesMu.Unlock()
 			} else if message.Event == "gameEnd" {
@@ -109,6 +120,11 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 					log.Printf("Invalid gameEnd data received from simulator: %v\n", err)
 					return
 				}
+				livesMu.Lock()
+				lives[data.ID].Send(nil)
+				lives[data.ID].Close()
+				delete(lives, data.ID)
+				livesMu.Unlock()
 				gamesMu.Lock()
 				services.HandleGameEnd(games[data.ID], data.Result)
 				delete(games, data.ID)
@@ -116,4 +132,11 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}()
+
+	for {
+		_, _, err := conn.ReadMessage()
+		if err != nil {
+			break
+		}
+	}
 }

@@ -1,6 +1,7 @@
 package game
 
 import (
+	"github.com/grafov/bcast"
 	"log"
 	"sync"
 	"time"
@@ -25,9 +26,15 @@ func StartGame(id string, setting GameSetting) {
 		lastUpdated:      time.Now(),
 		allocatedSession: "",
 	}
+
 	gamesMu.Lock()
 	games[id] = process
 	gamesMu.Unlock()
+
+	livesMu.Lock()
+	lives[id] = bcast.NewGroup()
+	go lives[id].Broadcast(0)
+	livesMu.Unlock()
 
 	allocateGame(process)
 }

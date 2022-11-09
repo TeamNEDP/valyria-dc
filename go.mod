@@ -7,6 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/gofrs/uuid v4.0.0+incompatible
 	github.com/gorilla/websocket v1.5.0
+	github.com/grafov/bcast v0.0.0-20190217190352-1447f067e08d
 	github.com/mitchellh/mapstructure v1.5.0
 	golang.org/x/crypto v0.1.0
 	gorm.io/driver/postgres v1.4.5
@@ -42,5 +43,6 @@ require (
 	golang.org/x/sys v0.1.0 // indirect
 	golang.org/x/text v0.4.0 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
+	gopkg.in/fatih/set.v0 v0.2.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
