@@ -11,16 +11,16 @@ type AuthData struct {
 }
 
 type GameStartData struct {
-	ID      string      `json:"id"`
-	Setting GameSetting `json:"setting"`
+	ID      string      `json:"ID"`
+	Setting GameSetting `json:"Setting"`
 }
 
 type GameUpdateData struct {
-	ID   string   `json:"id" mapstructure:"id"`
+	ID   string   `json:"ID" mapstructure:"ID"`
 	Tick GameTick `json:"tick" mapstructure:"tick"`
 }
 
 type GameEndData struct {
-	ID     string     `json:"id" mapstructure:"id"`
+	ID     string     `json:"ID" mapstructure:"ID"`
 	Result GameResult `json:"result" mapstructure:"result"`
 }

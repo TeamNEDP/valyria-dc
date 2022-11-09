@@ -1,5 +1,10 @@
 package game
 
+import (
+	"database/sql/driver"
+	"encoding/json"
+)
+
 type GridType = rune
 
 type MapGrid struct {
@@ -19,14 +24,23 @@ type UserScript struct {
 }
 
 type GameUser struct {
-	ID     string     `json:"id" mapstructure:"id"`
+	ID     string     `json:"ID" mapstructure:"ID"`
 	Script UserScript `json:"script" mapstructure:"script"`
 }
 
 type GameSetting struct {
-	ID    string              `json:"id" mapstructure:"id"`
+	ID    string              `json:"ID" mapstructure:"ID"`
 	Map   GameMap             `json:"map" mapstructure:"map"`
 	Users map[string]GameUser `json:"users" mapstructure:"users"`
+}
+
+func (gameSetting *GameSetting) Scan(src interface{}) error {
+	return json.Unmarshal([]byte(src.(string)), &gameSetting)
+}
+
+func (gameSetting GameSetting) Value() (driver.Value, error) {
+	val, err := json.Marshal(gameSetting)
+	return string(val), err
 }
 
 type MoveAction struct {
@@ -61,4 +75,26 @@ type GameResult struct {
 	Winner rune         `json:"winner" mapstructure:"winner"`
 	RStat  UserGameStat `json:"r_stat" mapstructure:"r_stat"`
 	BStat  UserGameStat `json:"b_stat" mapstructure:"b_stat"`
+}
+
+func (gameResult *GameResult) Scan(src interface{}) error {
+	return json.Unmarshal([]byte(src.(string)), &gameResult)
+}
+
+func (gameResult GameResult) Value() (driver.Value, error) {
+	val, err := json.Marshal(gameResult)
+	return string(val), err
+}
+
+type GameTicks struct {
+	Ticks []GameTick `json:"ticks"`
+}
+
+func (gameTicks *GameTicks) Scan(src interface{}) error {
+	return json.Unmarshal([]byte(src.(string)), &gameTicks)
+}
+
+func (gameTicks GameTicks) Value() (driver.Value, error) {
+	val, err := json.Marshal(gameTicks)
+	return string(val), err
 }

@@ -7,9 +7,9 @@ import (
 )
 
 type GameProcess struct {
-	id               string
-	setting          GameSetting
-	ticks            []GameTick
+	ID               string
+	Setting          GameSetting
+	Ticks            []GameTick
 	lastUpdated      time.Time
 	allocatedSession string
 }
@@ -19,9 +19,9 @@ var games = map[string]GameProcess{}
 
 func StartGame(id string, setting GameSetting) {
 	process := GameProcess{
-		id:               id,
-		setting:          setting,
-		ticks:            nil,
+		ID:               id,
+		Setting:          setting,
+		Ticks:            nil,
 		lastUpdated:      time.Now(),
 		allocatedSession: "",
 	}
@@ -49,15 +49,15 @@ func allocateGame(process GameProcess) {
 		_ = session.conn.WriteJSON(Message{
 			Event: "gameStart",
 			Data: GameStartData{
-				ID:      process.id,
-				Setting: process.setting,
+				ID:      process.ID,
+				Setting: process.Setting,
 			},
 		})
 		session.mu.Unlock()
 		return
 	}
 
-	log.Printf("no available simulator for game %s\n", process.id)
+	log.Printf("no available simulator for game %s\n", process.ID)
 }
 
 func InitWatchdog() {
@@ -70,7 +70,7 @@ func InitWatchdog() {
 			for _, game := range games {
 				if game.lastUpdated.Add(time.Second * 5).Before(time.Now()) {
 					game.lastUpdated = time.Now()
-					log.Printf("Reallocating game %s\n", game.id)
+					log.Printf("Reallocating game %s\n", game.ID)
 					go allocateGame(game)
 				}
 			}

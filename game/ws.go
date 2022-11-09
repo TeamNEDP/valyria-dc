@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"valyria-dc/services"
 )
 
 type simulatorSession struct {
@@ -97,7 +98,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 				gamesMu.Lock()
 				game, ok := games[data.ID]
 				if ok && game.allocatedSession == session.id {
-					game.ticks = append(game.ticks, data.Tick)
+					game.Ticks = append(game.Ticks, data.Tick)
 					// TODO: trigger live update
 				}
 				gamesMu.Unlock()
@@ -109,7 +110,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 				gamesMu.Lock()
-				// TODO: handle gameEnd
+				services.HandleGameEnd(games[data.ID], data.Result)
 				delete(games, data.ID)
 				gamesMu.Unlock()
 			}

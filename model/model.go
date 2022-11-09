@@ -1,6 +1,10 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"time"
+	"valyria-dc/game"
+)
 
 type User struct {
 	ID       string `gorm:"primaryKey"`
@@ -27,10 +31,24 @@ type UserSession struct {
 	SessionID string `gorm:"uniqueIndex"`
 }
 
+type Game struct {
+	ID        string `gorm:"uniqueIndex"`
+	Finished  bool   `gorm:"default:false"`
+	RScriptID uint
+	RScript   UserScript `gorm:"foreignKey:RScriptID"`
+	BScriptID uint
+	BScript   UserScript `gorm:"foreignKey:BScriptID"`
+	Setting   game.GameSetting
+	Ticks     game.GameTicks
+	Result    game.GameResult
+	CreatedAt time.Time
+}
+
 func AutoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&User{},
 		&UserScript{},
 		&UserSession{},
+		&Game{},
 	)
 }
