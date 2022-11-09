@@ -13,6 +13,7 @@ import (
 
 type simulatorSession struct {
 	mu         sync.Mutex
+	id         string
 	authorized bool
 	slots      uint
 	running    uint
@@ -36,6 +37,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	}
 	sessionId := sessionUUID.String()
 	session := simulatorSession{
+		id:         sessionId,
 		authorized: false,
 		running:    0,
 		slots:      0,
@@ -47,7 +49,12 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	sessionsMu.Unlock()
 
 	go func() {
-		defer conn.Close()
+		defer func() {
+			conn.Close()
+			sessionsMu.Lock()
+			defer sessionsMu.Unlock()
+			delete(sessions, sessionId)
+		}()
 		for {
 			typ, msg, err := conn.ReadMessage()
 			if err != nil {
