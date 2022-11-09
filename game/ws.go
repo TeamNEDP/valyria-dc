@@ -87,9 +87,32 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 				session.slots = data.Slots
 				session.mu.Unlock()
 				continue
+			} else if message.Event == "gameUpdate" {
+				data := GameUpdateData{}
+				err := mapstructure.Decode(message.Data, &data)
+				if err != nil {
+					log.Printf("Invalid gameUpdate data received from simulator: %v\n", err)
+					return
+				}
+				gamesMu.Lock()
+				game, ok := games[data.ID]
+				if ok && game.allocatedSession == session.id {
+					game.ticks = append(game.ticks, data.Tick)
+					// TODO: trigger live update
+				}
+				gamesMu.Unlock()
+			} else if message.Event == "gameEnd" {
+				data := GameEndData{}
+				err := mapstructure.Decode(message.Data, &data)
+				if err != nil {
+					log.Printf("Invalid gameEnd data received from simulator: %v\n", err)
+					return
+				}
+				gamesMu.Lock()
+				// TODO: handle gameEnd
+				delete(games, data.ID)
+				gamesMu.Unlock()
 			}
-
-			// TODO: handle messages
 		}
 	}()
 }
