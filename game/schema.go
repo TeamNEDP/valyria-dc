@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 )
 
-type GridType = rune
+type GridType = string
 
 type MapGrid struct {
 	Type     GridType `json:"type" mapstructure:"type"`
@@ -29,7 +29,6 @@ type GameUser struct {
 }
 
 type GameSetting struct {
-	ID    string              `json:"ID" mapstructure:"ID"`
 	Map   GameMap             `json:"map" mapstructure:"map"`
 	Users map[string]GameUser `json:"users" mapstructure:"users"`
 }
