@@ -72,6 +72,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			if typ == websocket.PingMessage {
+				_ = conn.SetReadDeadline(time.Now().Add(time.Second * 60))
 				_ = conn.WriteMessage(websocket.PongMessage, []byte{})
 				continue
 			}
