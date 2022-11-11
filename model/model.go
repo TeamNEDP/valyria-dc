@@ -44,11 +44,19 @@ type Game struct {
 	CreatedAt time.Time
 }
 
+type UserCompetition struct {
+	UserID       uint `gorm:"uniqueIndex:idx_compete_user_script"`
+	User         User
+	UserScriptID uint `gorm:"uniqueIndex:idx_compete_user_script"`
+	UserScript   UserScript
+}
+
 func AutoMigrate(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&User{},
 		&UserScript{},
 		&UserSession{},
 		&Game{},
+		&UserCompetition{},
 	)
 }

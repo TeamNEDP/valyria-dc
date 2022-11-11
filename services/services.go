@@ -27,6 +27,7 @@ func Start(listen ...string) error {
 	userEndpoints(g.Group("/api/user"))
 	scriptEndpoints(g.Group("/api/script"))
 	gameEndpoints(g.Group("/api/games"))
+	competeEndpoints(g.Group("/api/competition"))
 	g.GET("/api/simulator", func(ctx *gin.Context) {
 		game.ServeWs(ctx.Writer, ctx.Request)
 	})
