@@ -38,6 +38,7 @@ type Game struct {
 	RScript   UserScript `gorm:"foreignKey:RScriptID"`
 	BScriptID uint
 	BScript   UserScript `gorm:"foreignKey:BScriptID"`
+	Official  bool
 	Setting   game.GameSetting
 	Ticks     game.GameTicks
 	Result    game.GameResult

@@ -92,7 +92,7 @@ func listGames(ctx *gin.Context) {
 		entry := UserGameEntry{
 			ID:       v.ID,
 			Date:     v.CreatedAt.Unix(),
-			Official: false,
+			Official: v.Official,
 		}
 		if v.RScript.UserID == user.ID {
 			entry.Role = "R"
