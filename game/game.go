@@ -39,6 +39,12 @@ func StartGame(id string, setting GameSetting) {
 	allocateGame(process)
 }
 
+func IsRunning(id string) bool {
+	gamesMu.Lock()
+	defer gamesMu.Unlock()
+	return games[id].allocatedSession != ""
+}
+
 func allocateGame(process GameProcess) {
 	sessionsMu.Lock()
 	defer sessionsMu.Unlock()

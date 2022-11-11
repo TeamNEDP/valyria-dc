@@ -103,7 +103,11 @@ func listGames(ctx *gin.Context) {
 			entry.Status = "finished"
 			entry.Result = &v.Result
 		} else {
-			entry.Status = "running"
+			if game.IsRunning(v.ID) {
+				entry.Status = "running"
+			} else {
+				entry.Status = "queue"
+			}
 		}
 		res = append(res, entry)
 	}
