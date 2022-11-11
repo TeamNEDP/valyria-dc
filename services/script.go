@@ -90,6 +90,8 @@ func patchScript(ctx *gin.Context) {
 
 func deleteScript(ctx *gin.Context) {
 	script := ctx.MustGet("script").(model.UserScript)
+	script.Name = randCode(16)
+	db.Save(&script)
 	db.Delete(&script)
 	ctx.JSON(resOk(nil))
 }
