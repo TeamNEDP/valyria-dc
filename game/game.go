@@ -13,6 +13,7 @@ type GameProcess struct {
 	Ticks            []GameTick
 	lastUpdated      time.Time
 	allocatedSession string
+	mu               sync.Mutex
 }
 
 var gamesMu = sync.Mutex{}
@@ -41,11 +42,17 @@ func StartGame(id string, setting GameSetting) {
 
 func IsRunning(id string) bool {
 	gamesMu.Lock()
-	defer gamesMu.Unlock()
+	games[id].mu.Lock()
+	defer func() {
+		games[id].mu.Unlock()
+		gamesMu.Unlock()
+	}()
 	return games[id].allocatedSession != ""
 }
 
 func allocateGame(process *GameProcess) {
+	process.mu.Lock()
+	defer process.mu.Unlock()
 	sessionsMu.Lock()
 	defer sessionsMu.Unlock()
 
@@ -84,11 +91,13 @@ func InitWatchdog() {
 			<-ticker.C
 			gamesMu.Lock()
 			for _, game := range games {
+				game.mu.Lock()
 				if game.lastUpdated.Add(time.Second * 5).Before(time.Now()) {
 					game.lastUpdated = time.Now()
 					log.Printf("Reallocating game %s\n", game.ID)
 					go allocateGame(game)
 				}
+				game.mu.Unlock()
 			}
 			gamesMu.Unlock()
 		}

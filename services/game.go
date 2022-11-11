@@ -8,7 +8,7 @@ import (
 	"valyria-dc/model"
 )
 
-func handleGameEnd(process game.GameProcess, result game.GameResult) {
+func handleGameEnd(process *game.GameProcess, result game.GameResult) {
 	g := model.Game{}
 	err := db.Where("id=?", process.ID).First(&g).Error
 	if err != nil {
