@@ -48,7 +48,7 @@ func createScript(ctx *gin.Context) {
 	}
 	err := db.Save(&script).Error
 	if err != nil {
-		ctx.JSON(internalError(err))
+		ctx.JSON(internalError(err.Error()))
 		return
 	}
 	ctx.JSON(resOk(nil))
@@ -81,7 +81,7 @@ func patchScript(ctx *gin.Context) {
 	err := db.Save(&script).Error
 
 	if err != nil {
-		ctx.JSON(internalError(err))
+		ctx.JSON(internalError(err.Error()))
 		return
 	}
 

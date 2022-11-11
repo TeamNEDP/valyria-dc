@@ -54,7 +54,7 @@ func userCompetitionSet(ctx *gin.Context) {
 	})
 
 	if err != nil {
-		ctx.JSON(internalError(err))
+		ctx.JSON(internalError(err.Error()))
 		return
 	}
 
