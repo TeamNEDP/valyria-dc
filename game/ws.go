@@ -136,6 +136,9 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 				handleGameEnd(games[data.ID], data.Result)
 				delete(games, data.ID)
 				gamesMu.Unlock()
+			} else {
+				log.Printf("Invalid event type received from simulator: %s\n", message.Event)
+				return
 			}
 		}
 	}()
