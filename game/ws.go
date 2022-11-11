@@ -51,7 +51,12 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	sessions[sessionId] = &session
 	sessionsMu.Unlock()
 
-	defer conn.Close()
+	defer func() {
+		conn.Close()
+		sessionsMu.Lock()
+		defer sessionsMu.Unlock()
+		delete(sessions, sessionId)
+	}()
 
 	_ = conn.SetReadDeadline(time.Now().Add(time.Second * 60))
 	conn.SetPongHandler(func(string) error {
