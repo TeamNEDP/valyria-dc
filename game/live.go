@@ -56,6 +56,7 @@ func ServeLive(id string, w http.ResponseWriter, r *http.Request) {
 	livesMu.Unlock()
 
 	if !ok {
+		conn.Close()
 		return
 	}
 
