@@ -45,7 +45,7 @@ type Game struct {
 }
 
 type UserCompetition struct {
-	UserID       uint `gorm:"uniqueIndex:idx_compete_user_script"`
+	UserID       string `gorm:"uniqueIndex:idx_compete_user_script"`
 	User         User
 	UserScriptID uint `gorm:"uniqueIndex:idx_compete_user_script"`
 	UserScript   UserScript
