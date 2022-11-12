@@ -1,16 +1,18 @@
 package model
 
 type UserInfo struct {
-	ID    string `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID     string `json:"id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Rating int    `json:"rating"`
 }
 
 func (u User) Info() UserInfo {
 	return UserInfo{
-		ID:    u.ID,
-		Name:  u.Name,
-		Email: u.Email,
+		ID:     u.ID,
+		Name:   u.Name,
+		Email:  u.Email,
+		Rating: u.Rating,
 	}
 }
 
