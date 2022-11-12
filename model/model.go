@@ -38,10 +38,18 @@ type Game struct {
 	RScript   UserScript `gorm:"foreignKey:RScriptID"`
 	BScriptID uint
 	BScript   UserScript `gorm:"foreignKey:BScriptID"`
+	Official  bool
 	Setting   game.GameSetting
 	Ticks     game.GameTicks
 	Result    game.GameResult
 	CreatedAt time.Time
+}
+
+type UserCompetition struct {
+	UserID       string `gorm:"uniqueIndex:idx_compete_user_script"`
+	User         User
+	UserScriptID uint `gorm:"uniqueIndex:idx_compete_user_script"`
+	UserScript   UserScript
 }
 
 func AutoMigrate(db *gorm.DB) error {
@@ -50,5 +58,6 @@ func AutoMigrate(db *gorm.DB) error {
 		&UserScript{},
 		&UserSession{},
 		&Game{},
+		&UserCompetition{},
 	)
 }

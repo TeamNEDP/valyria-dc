@@ -24,7 +24,7 @@ type simulatorSession struct {
 var sessions = map[string]*simulatorSession{}
 var sessionsMu = sync.Mutex{}
 
-var handleGameEnd = func(process GameProcess, result GameResult) {}
+var handleGameEnd = func(process *GameProcess, result GameResult) {}
 
 func ServeWs(w http.ResponseWriter, r *http.Request) {
 	upgrader := websocket.Upgrader{}
@@ -113,11 +113,15 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 				}
 				gamesMu.Lock()
 				game, ok := games[data.ID]
-				if ok && game.allocatedSession == session.id {
-					game.Ticks = append(game.Ticks, data.Tick)
-					livesMu.Lock()
-					lives[data.ID].Send(data.Tick)
-					livesMu.Unlock()
+				if ok {
+					game.mu.Lock()
+					if game.allocatedSession == session.id {
+						game.Ticks = append(game.Ticks, data.Tick)
+						livesMu.Lock()
+						lives[data.ID].Send(data.Tick)
+						livesMu.Unlock()
+					}
+					game.mu.Unlock()
 				}
 				gamesMu.Unlock()
 			} else if message.Event == "gameEnd" {
@@ -133,7 +137,10 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 				delete(lives, data.ID)
 				livesMu.Unlock()
 				gamesMu.Lock()
-				handleGameEnd(games[data.ID], data.Result)
+				game := games[data.ID]
+				game.mu.Lock()
+				handleGameEnd(game, data.Result)
+				game.mu.Unlock()
 				delete(games, data.ID)
 				gamesMu.Unlock()
 			} else {
@@ -151,6 +158,6 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func OnGameEnd(handler func(process GameProcess, result GameResult)) {
+func OnGameEnd(handler func(process *GameProcess, result GameResult)) {
 	handleGameEnd = handler
 }

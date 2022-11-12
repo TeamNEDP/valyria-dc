@@ -55,7 +55,7 @@ func userRegister(ctx *gin.Context) {
 
 	hpw, err := bcrypt.GenerateFromPassword([]byte(form.Password), bcrypt.DefaultCost)
 	if err != nil {
-		ctx.JSON(internalError(err))
+		ctx.JSON(internalError(err.Error()))
 		return
 	}
 
@@ -69,7 +69,7 @@ func userRegister(ctx *gin.Context) {
 	}
 	err = db.Save(&user).Error
 	if err != nil {
-		ctx.JSON(internalError(err))
+		ctx.JSON(internalError(err.Error()))
 		return
 	}
 	ctx.JSON(resOk(nil))
@@ -99,7 +99,7 @@ func userLogin(ctx *gin.Context) {
 	}
 	err = db.Save(&session).Error
 	if err != nil {
-		ctx.JSON(internalError(err))
+		ctx.JSON(internalError(err.Error()))
 		return
 	}
 	ctx.SetCookie("session_id", session.SessionID, 86400*30, "/", "", false, true)
@@ -158,7 +158,7 @@ func userChangeAvatar(ctx *gin.Context) {
 	user.Avatar = w.Bytes()
 	err = db.Save(&user).Error
 	if err != nil {
-		ctx.JSON(internalError(err))
+		ctx.JSON(internalError(err.Error()))
 		return
 	}
 
