@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"strconv"
+	"time"
 	"valyria-dc/game"
 	"valyria-dc/model"
 )
@@ -39,6 +40,11 @@ type GameDetails struct {
 	Result game.GameResult `json:"result"`
 }
 
+type CustomGameForm struct {
+	RScript string `json:"r_script"`
+	BScript string `json:"b_script"`
+}
+
 func gameEndpoints(r *gin.RouterGroup) {
 	g := r.Group("", AuthRequired())
 
@@ -47,6 +53,67 @@ func gameEndpoints(r *gin.RouterGroup) {
 	each.GET("/details", gameDetails)
 	each.GET("/live", func(ctx *gin.Context) {
 		game.ServeLive(ctx.Param("id"), ctx.Writer, ctx.Request)
+	})
+
+	g.POST("/custom", func(ctx *gin.Context) {
+		user := ctx.MustGet("user").(model.User)
+		form := CustomGameForm{}
+		if err := ctx.ShouldBindJSON(&form); err != nil {
+			ctx.JSON(invalidParams("malformed custom form"))
+			return
+		}
+
+		rScript := model.UserScript{}
+		bScript := model.UserScript{}
+
+		if err := db.Where("user_id=?", user.ID).Where("name=?", form.RScript).First(&rScript).Error; err != nil {
+			ctx.JSON(notFound("r_script not found"))
+			return
+		}
+
+		if err := db.Where("user_id=?", user.ID).Where("name=?", form.BScript).First(&bScript).Error; err != nil {
+			ctx.JSON(notFound("b_script not found"))
+			return
+		}
+
+		gameSetting := game.GameSetting{
+			Map: game.RandMap(),
+			Users: map[string]game.GameUser{
+				"r": {
+					ID: user.ID,
+					Script: game.UserScript{
+						Type:    "javascript",
+						Content: &rScript.Code,
+					},
+				},
+				"b": {
+					ID: user.ID,
+					Script: game.UserScript{
+						Type:    "javascript",
+						Content: &bScript.Code,
+					},
+				},
+			},
+		}
+
+		gameId := randCode(8)
+		g := model.Game{
+			ID:        gameId,
+			Finished:  false,
+			RScriptID: rScript.ID,
+			BScriptID: bScript.ID,
+			Official:  false,
+			Setting:   gameSetting,
+			Ticks:     game.GameTicks{},
+			Result:    game.GameResult{},
+			CreatedAt: time.Now(),
+		}
+
+		db.Save(&g)
+
+		game.StartGame(gameId, gameSetting)
+
+		ctx.JSON(resOk(nil))
 	})
 }
 
