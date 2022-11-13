@@ -24,7 +24,7 @@ func queryScript(ctx *gin.Context) {
 	name := ctx.Param("name")
 
 	script := model.UserScript{}
-	err := db.Where("user_id=?", user.ID).Where("name=?", name).Find(&script).Error
+	err := db.Where("user_id=?", user.ID).Where("name=?", name).First(&script).Error
 	if err != nil {
 		ctx.JSON(notFound("script not found"))
 		ctx.Abort()

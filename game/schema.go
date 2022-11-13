@@ -43,10 +43,10 @@ func (gameSetting GameSetting) Value() (driver.Value, error) {
 }
 
 type MoveAction struct {
-	X        uint `json:"x" mapstructure:"x"`
-	Y        uint `json:"y" mapstructure:"y"`
-	Amount   uint `json:"amount" mapstructure:"amount"`
-	Movement rune `json:"movement" mapstructure:"movement"`
+	X        uint   `json:"x" mapstructure:"x"`
+	Y        uint   `json:"y" mapstructure:"y"`
+	Amount   uint   `json:"amount" mapstructure:"amount"`
+	Movement string `json:"movement" mapstructure:"movement"`
 }
 
 type GridChange struct {
