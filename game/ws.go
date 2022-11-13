@@ -120,6 +120,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 			game, ok := games[data.ID]
 			if ok {
 				game.mu.Lock()
+				game.lastUpdated = time.Now()
 				if game.allocatedSession == session.id {
 					game.Ticks = append(game.Ticks, data.Tick)
 					livesMu.Lock()
