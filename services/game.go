@@ -46,6 +46,14 @@ type CustomGameForm struct {
 }
 
 func gameEndpoints(r *gin.RouterGroup) {
+	var games []model.Game
+	db.Where("NOT finished").Find(&games)
+
+	for _, g := range games {
+		log.Printf("Restarting game %s\n", g.ID)
+		game.StartGame(g.ID, g.Setting)
+	}
+
 	g := r.Group("", AuthRequired())
 
 	g.GET("/", listGames)

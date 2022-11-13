@@ -59,103 +59,101 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	_ = conn.SetReadDeadline(time.Now().Add(time.Second * 60))
+	conn.SetPingHandler(func(string) error {
+		_ = conn.WriteMessage(websocket.PongMessage, []byte{})
+		_ = conn.SetReadDeadline(time.Now().Add(time.Second * 60))
+		return nil
+	})
 	conn.SetPongHandler(func(string) error {
 		_ = conn.SetReadDeadline(time.Now().Add(time.Second * 60))
 		return nil
 	})
 
-	go func() {
-		defer func() {
-			conn.Close()
-			sessionsMu.Lock()
-			defer sessionsMu.Unlock()
-			delete(sessions, sessionId)
-		}()
-		for {
-			typ, msg, err := conn.ReadMessage()
-			if err != nil {
-				return
-			}
-			if typ == websocket.PingMessage {
-				_ = conn.SetReadDeadline(time.Now().Add(time.Second * 60))
-				_ = conn.WriteMessage(websocket.PongMessage, []byte{})
-				continue
-			}
-
-			message := Message{}
-			if err := json.Unmarshal(msg, &message); err != nil {
-				log.Printf("Invalid message received from simulator: %v\n", err)
-				return
-			}
-
-			if message.Event == "auth" {
-				data := AuthData{}
-				err := mapstructure.Decode(message.Data, &data)
-				if err != nil {
-					log.Printf("Invalid auth data received from simulator: %v\n", err)
-					return
-				}
-				if os.Getenv("SIMULATOR_RPC_SECRET") != data.Token {
-					log.Printf("Invalid token received from simulator\n")
-					return
-				}
-				session.mu.Lock()
-				session.authorized = true
-				session.slots = data.Slots
-				session.mu.Unlock()
-				continue
-			} else if message.Event == "gameUpdate" {
-				data := GameUpdateData{}
-				err := mapstructure.Decode(message.Data, &data)
-				if err != nil {
-					log.Printf("Invalid gameUpdate data received from simulator: %v\n", err)
-					return
-				}
-				gamesMu.Lock()
-				game, ok := games[data.ID]
-				if ok {
-					game.mu.Lock()
-					if game.allocatedSession == session.id {
-						game.Ticks = append(game.Ticks, data.Tick)
-						livesMu.Lock()
-						lives[data.ID].Send(data.Tick)
-						livesMu.Unlock()
-					}
-					game.mu.Unlock()
-				}
-				gamesMu.Unlock()
-			} else if message.Event == "gameEnd" {
-				data := GameEndData{}
-				err := mapstructure.Decode(message.Data, &data)
-				if err != nil {
-					log.Printf("Invalid gameEnd data received from simulator: %v\n", err)
-					return
-				}
-				livesMu.Lock()
-				lives[data.ID].Send(nil)
-				lives[data.ID].Close()
-				delete(lives, data.ID)
-				livesMu.Unlock()
-				gamesMu.Lock()
-				game := games[data.ID]
-				game.mu.Lock()
-				handleGameEnd(game, data.Result)
-				game.mu.Unlock()
-				delete(games, data.ID)
-				gamesMu.Unlock()
-			} else {
-				log.Printf("Invalid event type received from simulator: %s\n", message.Event)
-				return
-			}
-		}
+	defer func() {
+		conn.Close()
+		sessionsMu.Lock()
+		defer sessionsMu.Unlock()
+		delete(sessions, sessionId)
 	}()
 
 	for {
-		_, _, err := conn.ReadMessage()
+		typ, msg, err := conn.ReadMessage()
 		if err != nil {
-			break
+			return
+		}
+		if typ == websocket.PingMessage {
+			_ = conn.SetReadDeadline(time.Now().Add(time.Second * 60))
+			_ = conn.WriteMessage(websocket.PongMessage, []byte{})
+			continue
+		}
+
+		message := Message{}
+		if err := json.Unmarshal(msg, &message); err != nil {
+			log.Printf("Invalid message received from simulator: %v\n", err)
+			return
+		}
+
+		if message.Event == "auth" {
+			data := AuthData{}
+			err := mapstructure.Decode(message.Data, &data)
+			if err != nil {
+				log.Printf("Invalid auth data received from simulator: %v\n", err)
+				return
+			}
+			if os.Getenv("SIMULATOR_RPC_SECRET") != data.Token {
+				log.Printf("Invalid token received from simulator\n")
+				return
+			}
+			session.mu.Lock()
+			session.authorized = true
+			session.slots = data.Slots
+			session.mu.Unlock()
+			continue
+		} else if message.Event == "gameUpdate" {
+			data := GameUpdateData{}
+			err := mapstructure.Decode(message.Data, &data)
+			if err != nil {
+				log.Printf("Invalid gameUpdate data received from simulator: %v\n", err)
+				return
+			}
+			gamesMu.Lock()
+			game, ok := games[data.ID]
+			if ok {
+				game.mu.Lock()
+				if game.allocatedSession == session.id {
+					game.Ticks = append(game.Ticks, data.Tick)
+					livesMu.Lock()
+					lives[data.ID].Send(data.Tick)
+					livesMu.Unlock()
+				}
+				game.mu.Unlock()
+			}
+			gamesMu.Unlock()
+		} else if message.Event == "gameEnd" {
+			data := GameEndData{}
+			err := mapstructure.Decode(message.Data, &data)
+			if err != nil {
+				log.Printf("Invalid gameEnd data received from simulator: %v\n", err)
+				return
+			}
+			livesMu.Lock()
+			lives[data.ID].Send(nil)
+			lives[data.ID].Close()
+			delete(lives, data.ID)
+			livesMu.Unlock()
+			gamesMu.Lock()
+			game := games[data.ID]
+			game.mu.Lock()
+			handleGameEnd(game, data.Result)
+			game.mu.Unlock()
+			delete(games, data.ID)
+			gamesMu.Unlock()
+		} else {
+			log.Printf("Invalid event type received from simulator: %s\n", message.Event)
+			return
 		}
 	}
+
 }
 
 func OnGameEnd(handler func(process *GameProcess, result GameResult)) {

@@ -24,7 +24,7 @@ type UserScript struct {
 }
 
 type GameUser struct {
-	ID     string     `json:"ID" mapstructure:"ID"`
+	ID     string     `json:"id" mapstructure:"id"`
 	Script UserScript `json:"script" mapstructure:"script"`
 }
 
@@ -56,7 +56,7 @@ type GridChange struct {
 }
 
 type GameTick struct {
-	Operator    rune         `json:"operator" mapstructure:"operator"`
+	Operator    string       `json:"operator" mapstructure:"operator"`
 	Changes     []GridChange `json:"changes" mapstructure:"changes"`
 	Action      *MoveAction  `json:"action" mapstructure:"action"`
 	ActionValid bool         `json:"action_valid" mapstructure:"action_valid"`
@@ -71,7 +71,7 @@ type UserGameStat struct {
 }
 
 type GameResult struct {
-	Winner rune         `json:"winner" mapstructure:"winner"`
+	Winner string       `json:"winner" mapstructure:"winner"`
 	RStat  UserGameStat `json:"r_stat" mapstructure:"r_stat"`
 	BStat  UserGameStat `json:"b_stat" mapstructure:"b_stat"`
 }

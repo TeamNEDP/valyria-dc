@@ -37,15 +37,20 @@ func StartGame(id string, setting GameSetting) {
 	go lives[id].Broadcast(0)
 	livesMu.Unlock()
 
-	allocateGame(&process)
+	go allocateGame(&process)
 }
 
 func IsRunning(id string) bool {
 	gamesMu.Lock()
-	games[id].mu.Lock()
-	defer func() {
-		games[id].mu.Unlock()
+	game, ok := games[id]
+	if !ok {
 		gamesMu.Unlock()
+		return false
+	}
+	game.mu.Lock()
+	defer func() {
+		gamesMu.Unlock()
+		game.mu.Unlock()
 	}()
 	return games[id].allocatedSession != ""
 }
@@ -69,13 +74,16 @@ func allocateGame(process *GameProcess) {
 		}
 		session.running++
 		process.allocatedSession = session.id
-		_ = session.conn.WriteJSON(Message{
-			Event: "gameStart",
-			Data: GameStartData{
-				ID:      process.ID,
-				Setting: process.Setting,
-			},
-		})
+		go func() {
+			_ = session.conn.WriteJSON(Message{
+				Event: "gameStart",
+				Data: GameStartData{
+					ID:      process.ID,
+					Setting: process.Setting,
+				},
+			})
+			//log.Printf("Sent game start message\n")
+		}()
 		session.mu.Unlock()
 		return
 	}

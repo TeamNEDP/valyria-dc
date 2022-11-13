@@ -11,8 +11,8 @@ type AuthData struct {
 }
 
 type GameStartData struct {
-	ID      string      `json:"ID"`
-	Setting GameSetting `json:"Setting"`
+	ID      string      `json:"id"`
+	Setting GameSetting `json:"setting"`
 }
 
 type GameUpdateData struct {
