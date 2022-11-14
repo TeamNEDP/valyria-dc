@@ -13,8 +13,8 @@ type MapGrid struct {
 }
 
 type GameMap struct {
-	Width  uint      `json:"width" mapstructure:"width"`
-	Height uint      `json:"height" mapstructure:"height"`
+	Width  int       `json:"width" mapstructure:"width"`
+	Height int       `json:"height" mapstructure:"height"`
 	Grids  []MapGrid `json:"grids" mapstructure:"grids"`
 }
 
@@ -43,15 +43,15 @@ func (gameSetting GameSetting) Value() (driver.Value, error) {
 }
 
 type MoveAction struct {
-	X        uint   `json:"x" mapstructure:"x"`
-	Y        uint   `json:"y" mapstructure:"y"`
-	Amount   uint   `json:"amount" mapstructure:"amount"`
+	X        int    `json:"x" mapstructure:"x"`
+	Y        int    `json:"y" mapstructure:"y"`
+	Amount   int    `json:"amount" mapstructure:"amount"`
 	Movement string `json:"movement" mapstructure:"movement"`
 }
 
 type GridChange struct {
-	X    uint    `json:"x" mapstructure:"x"`
-	Y    uint    `json:"y" mapstructure:"y"`
+	X    int     `json:"x" mapstructure:"x"`
+	Y    int     `json:"y" mapstructure:"y"`
 	Grid MapGrid `json:"grid" mapstructure:"grid"`
 }
 
@@ -63,11 +63,11 @@ type GameTick struct {
 }
 
 type UserGameStat struct {
-	Rounds         uint `json:"rounds" mapstructure:"rounds"`
-	Moves          uint `json:"moves" mapstructure:"moves"`
-	SoldiersTotal  uint `json:"soldiers_total" mapstructure:"soldiers_total"`
-	SoldiersKilled uint `json:"soldiers_killed" mapstructure:"soldiers_killed"`
-	GridsTaken     uint `json:"grids_taken" mapstructure:"grids_taken"`
+	Rounds         int `json:"rounds" mapstructure:"rounds"`
+	Moves          int `json:"moves" mapstructure:"moves"`
+	SoldiersTotal  int `json:"soldiers_total" mapstructure:"soldiers_total"`
+	SoldiersKilled int `json:"soldiers_killed" mapstructure:"soldiers_killed"`
+	GridsTaken     int `json:"grids_taken" mapstructure:"grids_taken"`
 }
 
 type GameResult struct {

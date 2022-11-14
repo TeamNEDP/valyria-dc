@@ -27,7 +27,7 @@ func ServeLive(id string, w http.ResponseWriter, r *http.Request) {
 	gamesMu.Lock()
 	game, ok := games[id]
 	if !ok {
-		conn.Close()
+		go conn.Close()
 		return
 	}
 	game.mu.Lock()
@@ -50,7 +50,7 @@ func ServeLive(id string, w http.ResponseWriter, r *http.Request) {
 	livesMu.Lock()
 	group, ok := lives[id]
 	if !ok {
-		conn.Close()
+		go conn.Close()
 		return
 	}
 	livesMu.Unlock()

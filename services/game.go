@@ -51,7 +51,7 @@ func gameEndpoints(r *gin.RouterGroup) {
 
 	for _, g := range games {
 		log.Printf("Restarting game %s\n", g.ID)
-		game.StartGame(g.ID, g.Setting)
+		go game.StartGame(g.ID, g.Setting)
 	}
 
 	g := r.Group("", AuthRequired())
@@ -119,7 +119,7 @@ func gameEndpoints(r *gin.RouterGroup) {
 
 		db.Save(&g)
 
-		game.StartGame(gameId, gameSetting)
+		go game.StartGame(gameId, gameSetting)
 
 		ctx.JSON(resOk(nil))
 	})
@@ -156,6 +156,7 @@ func listGames(ctx *gin.Context) {
 		Preload("BScript").
 		Limit(limit).
 		Offset(offset).
+		Order("created_at DESC").
 		Where("r_script_id IN (?) OR b_script_id IN (?)",
 			db.Model(&model.UserScript{}).Where("user_id=?", user.ID).Select("id"),
 			db.Model(&model.UserScript{}).Where("user_id=?", user.ID).Select("id"),
