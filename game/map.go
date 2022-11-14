@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-const MapWidth = 2
-const MapHeight = 2
+const MapWidth = 5
+const MapHeight = 5
 
 func RandMap() GameMap {
 	rand.Seed(time.Now().UnixNano())
