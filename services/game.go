@@ -143,10 +143,10 @@ func listGames(ctx *gin.Context) {
 	limit := 50
 	offset := 0
 
-	if lim, err := strconv.Atoi(ctx.Query("limit")); err != nil {
+	if lim, err := strconv.Atoi(ctx.Query("limit")); err == nil {
 		limit = lim
 	}
-	if off, err := strconv.Atoi(ctx.Query("offset")); err != nil {
+	if off, err := strconv.Atoi(ctx.Query("offset")); err == nil {
 		offset = off
 	}
 
