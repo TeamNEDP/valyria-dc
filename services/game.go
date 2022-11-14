@@ -176,8 +176,9 @@ func listGames(ctx *gin.Context) {
 			entry.Role = "B"
 		}
 		if v.Finished {
+			result := v.Result
 			entry.Status = "finished"
-			entry.Result = &v.Result
+			entry.Result = &result
 		} else {
 			if game.IsRunning(v.ID) {
 				entry.Status = "running"
