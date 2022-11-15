@@ -13,6 +13,66 @@ steps:
     image: alpine/git
     commands:
       - git submodule update --init --recursive
+
+  - name: restore-backend-cache
+    image: drillster/drone-volume-cache
+    settings:
+      restore: true
+      mount:
+        - /root/.cache/go-build
+      volumes:
+        - name: cache
+          path: /cache
+  - name: backend-build
+    image: golang:1.19-alpine
+    commands:
+      - go build -o main
+    depends_on:
+      - restore-backend-cache
+  - name: rebuild-backend-cache
+    image: drillster/drone-volume-cache
+    settings:
+      rebuild: true
+      mount:
+        - /root/.cache/go-build
+      volumes:
+        - name: cache
+          path: /cache
+    depends_on:
+      - backend-build
+
+
+  - name: restore-frontend-cache
+    image: drillster/drone-volume-cache
+    settings:
+      restore: true
+      mount:
+        - ./frontend/node_modules
+      volumes:
+        - name: cache
+          path: /cache
+  - name: frontend-build
+    image: node:19-alpine
+    commands:
+      - cd frontend
+      - node -v
+      - yarn --version
+      - yarn install && yarn build
+    depends_on:
+      - submodules
+      - restore-frontend-cache
+  - name: rebuild-frontend-cache
+    image: drillster/drone-volume-cache
+    settings:
+      rebuild: true
+      mount:
+        - ./frontend/node_modules
+      volumes:
+        - name: cache
+          path: /cache
+    depends_on:
+      - frontend-build
+
   - name: docker
     image: plugins/docker
     settings:
@@ -21,3 +81,6 @@ steps:
       password:
         from_secret: DOCKER_REGISTRY_PASSWD
       repo: r.s8k.top/valyria-dc
+    depends_on:
+      - backend-build
+      - frontend-build
