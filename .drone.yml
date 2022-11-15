@@ -19,7 +19,7 @@ steps:
     settings:
       restore: true
       mount:
-        - /root/.cache/go-build
+        - ~/.cache/go-build
         - /var/cache/apk
       volumes:
         - name: cache
