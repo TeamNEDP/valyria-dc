@@ -21,9 +21,9 @@ steps:
       mount:
         - ~/.cache/go-build
         - /var/cache/apk
-      volumes:
-        - name: cache
-          path: /cache
+    volumes:
+      - name: cache
+        path: /cache
   - name: backend-build
     image: golang:1.19-alpine
     commands:
@@ -37,9 +37,9 @@ steps:
       rebuild: true
       mount:
         - ~/.cache/go-build
-      volumes:
-        - name: cache
-          path: /cache
+    volumes:
+      - name: cache
+        path: /cache
     depends_on:
       - backend-build
 
@@ -50,9 +50,9 @@ steps:
       restore: true
       mount:
         - ./frontend/node_modules
-      volumes:
-        - name: cache
-          path: /cache
+    volumes:
+      - name: cache
+        path: /cache
   - name: frontend-build
     image: node:19-alpine
     commands:
@@ -69,9 +69,9 @@ steps:
       rebuild: true
       mount:
         - ./frontend/node_modules
-      volumes:
-        - name: cache
-          path: /cache
+    volumes:
+      - name: cache
+        path: /cache
     depends_on:
       - frontend-build
 
