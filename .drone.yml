@@ -28,6 +28,8 @@ steps:
   - name: backend-build
     image: golang:1.19-alpine
     commands:
+      - go env GOPATH
+      - go env GOCACHE
       - apk add gcc g++ upx
       - go build -o main
     depends_on:
