@@ -36,10 +36,6 @@ steps:
     commands:
       - apk add gcc g++ upx
       - go build -o main
-      - ls /go
-      - ls /var/cache/apk
-      - ls /root/.cache/go-build
-      - mount
     volumes:
       - name: go
         path: /go
@@ -121,3 +117,9 @@ volumes:
   - name: cache
     host:
       path: /var/cache/drone-runner
+  - name: go
+    temp: {}
+  - name: apk
+    temp: {}
+  - name: go-build
+    temp: {}
