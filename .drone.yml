@@ -56,6 +56,8 @@ steps:
     volumes:
       - name: cache
         path: /cache
+    depends_on:
+      - submodules
   - name: frontend-build
     image: node:19-alpine
     commands:
