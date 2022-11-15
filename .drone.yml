@@ -90,4 +90,4 @@ steps:
 volumes:
   - name: cache
     host:
-      path: /tmp/cache/drone
+      path: /var/cache/drone-runner
