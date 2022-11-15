@@ -23,15 +23,28 @@ steps:
         - /root/.cache/go-build
         - /var/cache/apk
     volumes:
+      - name: go
+        path: /go
+      - name: apk
+        path: /var/cache/apk
+      - name: go-build
+        path: /root/.cache/go-build
       - name: cache
         path: /cache
   - name: backend-build
     image: golang:1.19-alpine
     commands:
-      - go env GOPATH
-      - go env GOCACHE
       - apk add gcc g++ upx
       - go build -o main
+    volumes:
+      - name: go
+        path: /go
+      - name: apk
+        path: /var/cache/apk
+      - name: go-build
+        path: /root/.cache/go-build
+      - name: cache
+        path: /cache
     depends_on:
       - restore-backend-cache
   - name: rebuild-backend-cache
@@ -43,6 +56,14 @@ steps:
         - /root/.cache/go-build
         - /var/cache/apk
     volumes:
+      - name: cache
+        path: /cache
+      - name: go
+        path: /go
+      - name: apk
+        path: /var/cache/apk
+      - name: go-build
+        path: /root/.cache/go-build
       - name: cache
         path: /cache
     depends_on:
