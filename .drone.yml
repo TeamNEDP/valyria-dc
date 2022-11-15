@@ -64,8 +64,6 @@ steps:
         path: /var/cache/apk
       - name: go-build
         path: /root/.cache/go-build
-      - name: cache
-        path: /cache
     depends_on:
       - backend-build
 
