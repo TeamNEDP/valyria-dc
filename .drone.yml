@@ -86,3 +86,8 @@ steps:
     depends_on:
       - backend-build
       - frontend-build
+
+volumes:
+  - name: cache
+    host:
+      path: /tmp/cache/drone
