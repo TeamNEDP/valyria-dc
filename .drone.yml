@@ -19,7 +19,7 @@ steps:
     settings:
       restore: true
       mount:
-        - ./go-cache
+        - /go-cache
         - /var/cache/apk
     volumes:
       - name: cache
@@ -27,7 +27,7 @@ steps:
   - name: backend-build
     image: golang:1.19-alpine
     environment:
-      GOCACHE: ./go-cache
+      GOCACHE: /go-cache
     commands:
       - apk add gcc g++ upx
       - go build -o main
@@ -38,7 +38,7 @@ steps:
     settings:
       rebuild: true
       mount:
-        - ./go-cache
+        - /go-cache
         - /var/cache/apk
     volumes:
       - name: cache
