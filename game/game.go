@@ -99,13 +99,16 @@ func InitWatchdog() {
 			<-ticker.C
 			gamesMu.Lock()
 			for _, game := range games {
-				game.mu.Lock()
-				if game.lastUpdated.Add(time.Second * 5).Before(time.Now()) {
-					game.lastUpdated = time.Now()
-					log.Printf("Reallocating game %s\n", game.ID)
-					go allocateGame(game)
-				}
-				game.mu.Unlock()
+				game := game
+				go func() {
+					game.mu.Lock()
+					if game.lastUpdated.Add(time.Second * 5).Before(time.Now()) {
+						game.lastUpdated = time.Now()
+						log.Printf("Reallocating game %s\n", game.ID)
+						go allocateGame(game)
+					}
+					game.mu.Unlock()
+				}()
 			}
 			gamesMu.Unlock()
 		}

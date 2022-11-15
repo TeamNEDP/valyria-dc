@@ -51,7 +51,7 @@ func gameEndpoints(r *gin.RouterGroup) {
 
 	for _, g := range games {
 		log.Printf("Restarting game %s\n", g.ID)
-		game.StartGame(g.ID, g.Setting)
+		go game.StartGame(g.ID, g.Setting)
 	}
 
 	g := r.Group("", AuthRequired())
@@ -119,7 +119,7 @@ func gameEndpoints(r *gin.RouterGroup) {
 
 		db.Save(&g)
 
-		game.StartGame(gameId, gameSetting)
+		go game.StartGame(gameId, gameSetting)
 
 		ctx.JSON(resOk(nil))
 	})
@@ -143,10 +143,10 @@ func listGames(ctx *gin.Context) {
 	limit := 50
 	offset := 0
 
-	if lim, err := strconv.Atoi(ctx.Query("limit")); err != nil {
+	if lim, err := strconv.Atoi(ctx.Query("limit")); err == nil {
 		limit = lim
 	}
-	if off, err := strconv.Atoi(ctx.Query("offset")); err != nil {
+	if off, err := strconv.Atoi(ctx.Query("offset")); err == nil {
 		offset = off
 	}
 
@@ -156,6 +156,7 @@ func listGames(ctx *gin.Context) {
 		Preload("BScript").
 		Limit(limit).
 		Offset(offset).
+		Order("created_at DESC").
 		Where("r_script_id IN (?) OR b_script_id IN (?)",
 			db.Model(&model.UserScript{}).Where("user_id=?", user.ID).Select("id"),
 			db.Model(&model.UserScript{}).Where("user_id=?", user.ID).Select("id"),
@@ -175,8 +176,9 @@ func listGames(ctx *gin.Context) {
 			entry.Role = "B"
 		}
 		if v.Finished {
+			result := v.Result
 			entry.Status = "finished"
-			entry.Result = &v.Result
+			entry.Result = &result
 		} else {
 			if game.IsRunning(v.ID) {
 				entry.Status = "running"

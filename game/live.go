@@ -26,17 +26,20 @@ func ServeLive(id string, w http.ResponseWriter, r *http.Request) {
 	// write game intro
 	gamesMu.Lock()
 	game, ok := games[id]
+	gamesMu.Unlock()
+
 	if !ok {
-		conn.Close()
+		go conn.Close()
 		return
 	}
+
 	game.mu.Lock()
 	intro := GameIntro{
 		Map:   game.Setting.Map,
 		Ticks: game.Ticks,
 	}
 	game.mu.Unlock()
-	gamesMu.Unlock()
+
 	err = conn.WriteJSON(Message{
 		Event: "intro",
 		Data:  intro,
@@ -50,7 +53,7 @@ func ServeLive(id string, w http.ResponseWriter, r *http.Request) {
 	livesMu.Lock()
 	group, ok := lives[id]
 	if !ok {
-		conn.Close()
+		go conn.Close()
 		return
 	}
 	livesMu.Unlock()

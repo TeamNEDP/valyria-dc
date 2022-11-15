@@ -42,7 +42,7 @@ type Game struct {
 	Setting   game.GameSetting
 	Ticks     game.GameTicks
 	Result    game.GameResult
-	CreatedAt time.Time
+	CreatedAt time.Time `gorm:"index"`
 }
 
 type UserCompetition struct {

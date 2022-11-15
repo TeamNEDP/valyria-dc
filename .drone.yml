@@ -1,0 +1,23 @@
+kind: pipeline
+type: docker
+name: publish
+
+trigger:
+  event:
+    - push
+  branch:
+    - master
+
+steps:
+  - name: submodules
+    image: alpine/git
+    commands:
+      - git submodule update --init --recursive
+  - name: docker
+    image: plugins/docker
+    settings:
+      registry: r.s8k.top
+      username: docker
+      password:
+        from_secret: DOCKER_REGISTRY_PASSWD
+      repo: r.s8k.top/valyria-dc
