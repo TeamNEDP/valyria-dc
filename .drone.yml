@@ -36,6 +36,7 @@ steps:
     commands:
       - apk add gcc g++ upx
       - go build -o main
+      - upx main
     volumes:
       - name: go
         path: /go
