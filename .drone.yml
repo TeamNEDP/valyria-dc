@@ -20,12 +20,14 @@ steps:
       restore: true
       mount:
         - /root/.cache/go-build
+        - /var/cache/apk
       volumes:
         - name: cache
           path: /cache
   - name: backend-build
     image: golang:1.19-alpine
     commands:
+      - apk add gcc g++
       - go build -o main
     depends_on:
       - restore-backend-cache
