@@ -36,7 +36,7 @@ steps:
     settings:
       rebuild: true
       mount:
-        - /root/.cache/go-build
+        - ~/.cache/go-build
       volumes:
         - name: cache
           path: /cache
