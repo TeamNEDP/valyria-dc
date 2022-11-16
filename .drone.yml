@@ -109,7 +109,7 @@ steps:
     image: plugins/webhook
     settings:
       method: POST
-      urls: http://101.43.76.104:4000/api/services/valyria-dc
+      urls: http://101.43.76.104:4000/api/services/valyria-dc/deploy
       headers:
         from_secret: S2_COMPOSE_DEPLOYER_SECRET_HEADER
     depends_on:
