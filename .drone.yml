@@ -21,27 +21,21 @@ steps:
       mount:
         - /go
         - /root/.cache/go-build
-        - /var/cache/apk
     volumes:
       - name: go
         path: /go
-      - name: apk
-        path: /var/cache/apk
       - name: go-build
         path: /root/.cache/go-build
       - name: cache
         path: /cache
   - name: backend-build
-    image: golang:1.19-alpine
+    image: r.s8k.top/golang-gcc
     commands:
-      - apk add gcc g++ upx
       - go build -o main
       - upx main
     volumes:
       - name: go
         path: /go
-      - name: apk
-        path: /var/cache/apk
       - name: go-build
         path: /root/.cache/go-build
       - name: cache
@@ -55,14 +49,11 @@ steps:
       mount:
         - /go
         - /root/.cache/go-build
-        - /var/cache/apk
     volumes:
       - name: cache
         path: /cache
       - name: go
         path: /go
-      - name: apk
-        path: /var/cache/apk
       - name: go-build
         path: /root/.cache/go-build
     depends_on:
@@ -118,8 +109,6 @@ volumes:
     host:
       path: /var/cache/drone-runner
   - name: go
-    temp: {}
-  - name: apk
     temp: {}
   - name: go-build
     temp: {}
