@@ -94,13 +94,17 @@ steps:
       - frontend-build
 
   - name: docker
-    image: plugins/docker
-    settings:
-      registry: r.s8k.top
-      username: docker
-      password:
+    image: docker:dind
+    environment:
+      DOCKER_PASS:
         from_secret: DOCKER_REGISTRY_PASSWD
-      repo: r.s8k.top/valyria-dc
+    commands:
+      - docker login -u docker -p $DOCKER_PASS r.s8k.top
+      - docker build -t r.s8k.top/valyria-dc .
+      - docker push r.s8k.top/valyria-dc
+    volumes:
+      - name: dockersock
+        path: /var/run/docker.sock
     depends_on:
       - backend-build
       - frontend-build
@@ -119,6 +123,9 @@ volumes:
   - name: cache
     host:
       path: /var/cache/drone-runner
+  - name: dockersock
+    host:
+      path: /var/run/docker.sock
   - name: go
     temp: {}
   - name: go-build
