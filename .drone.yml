@@ -30,6 +30,7 @@ steps:
         path: /cache
   - name: backend-build
     image: r.s8k.top/golang-gcc
+    pull: never
     commands:
       - go build -o main
       - upx main
