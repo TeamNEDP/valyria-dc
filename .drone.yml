@@ -11,11 +11,13 @@ trigger:
 steps:
   - name: submodules
     image: alpine/git
+    pull: if-not-exists
     commands:
       - git submodule update --init --recursive
 
   - name: restore-backend-cache
     image: drillster/drone-volume-cache
+    pull: if-not-exists
     settings:
       restore: true
       mount:
@@ -45,6 +47,7 @@ steps:
       - restore-backend-cache
   - name: rebuild-backend-cache
     image: drillster/drone-volume-cache
+    pull: if-not-exists
     settings:
       rebuild: true
       mount:
@@ -63,6 +66,7 @@ steps:
 
   - name: restore-frontend-cache
     image: drillster/drone-volume-cache
+    pull: if-not-exists
     settings:
       restore: true
       mount:
@@ -74,6 +78,7 @@ steps:
       - submodules
   - name: frontend-build
     image: node:19-alpine
+    pull: if-not-exists
     commands:
       - cd frontend
       - node -v
@@ -83,6 +88,7 @@ steps:
       - restore-frontend-cache
   - name: rebuild-frontend-cache
     image: drillster/drone-volume-cache
+    pull: if-not-exists
     settings:
       rebuild: true
       mount:
@@ -95,6 +101,7 @@ steps:
 
   - name: docker
     image: docker:dind
+    pull: if-not-exists
     environment:
       DOCKER_PASS:
         from_secret: DOCKER_REGISTRY_PASSWD
@@ -111,6 +118,7 @@ steps:
 
   - name: deploy
     image: plugins/webhook
+    pull: if-not-exists
     settings:
       method: POST
       urls: http://101.43.76.104:4000/api/services/valyria-dc/deploy
