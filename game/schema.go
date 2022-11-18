@@ -60,6 +60,7 @@ type GameTick struct {
 	Changes     []GridChange `json:"changes" mapstructure:"changes"`
 	Action      *MoveAction  `json:"action" mapstructure:"action"`
 	ActionValid bool         `json:"action_valid" mapstructure:"action_valid"`
+	ActionError string       `json:"action_error" mapstructure:"action_error"`
 }
 
 type UserGameStat struct {
