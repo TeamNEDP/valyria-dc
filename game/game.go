@@ -75,6 +75,7 @@ func allocateGame(process *GameProcess) {
 		session.running++
 		process.allocatedSession = session.id
 		go func() {
+			session.mu.Lock()
 			_ = session.conn.WriteJSON(Message{
 				Event: "gameStart",
 				Data: GameStartData{
@@ -82,6 +83,7 @@ func allocateGame(process *GameProcess) {
 					Setting: process.Setting,
 				},
 			})
+			session.mu.Unlock()
 			//log.Printf("Sent game start message\n")
 		}()
 		session.mu.Unlock()
