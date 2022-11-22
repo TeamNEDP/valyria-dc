@@ -140,11 +140,14 @@ func queryGame(ctx *gin.Context) {
 func listGames(ctx *gin.Context) {
 	user := ctx.MustGet("user").(model.User)
 
-	limit := 50
+	limit := 20
 	offset := 0
 
 	if lim, err := strconv.Atoi(ctx.Query("limit")); err == nil {
 		limit = lim
+	}
+	if limit > 20 {
+		ctx.JSON(invalidParams("limit too large"))
 	}
 	if off, err := strconv.Atoi(ctx.Query("offset")); err == nil {
 		offset = off
@@ -161,6 +164,7 @@ func listGames(ctx *gin.Context) {
 			db.Model(&model.UserScript{}).Where("user_id=?", user.ID).Select("id"),
 			db.Model(&model.UserScript{}).Where("user_id=?", user.ID).Select("id"),
 		).
+		Omit("ticks").
 		Find(&games)
 
 	res := make([]UserGameEntry, 0, len(games))
