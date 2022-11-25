@@ -1,8 +1,8 @@
 package services
 
 type Response struct {
-	Code int         `json:"code"`
-	Data interface{} `json:"data"`
+	Code int `json:"code"`
+	Data any `json:"data"`
 }
 
 const (
@@ -14,7 +14,7 @@ const (
 	CodeInternalError   = 902005
 )
 
-func resOk(data interface{}) (int, Response) {
+func resOk(data any) (int, Response) {
 	return 200, Response{
 		Code: 0,
 		Data: data,
@@ -27,21 +27,21 @@ func unauthorized() (int, Response) {
 	}
 }
 
-func notFound(data interface{}) (int, Response) {
+func notFound(data any) (int, Response) {
 	return 404, Response{
 		Code: CodeContentNotFound,
 		Data: data,
 	}
 }
 
-func invalidParams(data interface{}) (int, Response) {
+func invalidParams(data any) (int, Response) {
 	return 400, Response{
 		Code: CodeInvalidParams,
 		Data: data,
 	}
 }
 
-func internalError(data interface{}) (int, Response) {
+func internalError(data any) (int, Response) {
 	return 500, Response{
 		Code: CodeInternalError,
 		Data: data,

@@ -33,7 +33,7 @@ type GameSetting struct {
 	Users map[string]GameUser `json:"users" mapstructure:"users"`
 }
 
-func (gameSetting *GameSetting) Scan(src interface{}) error {
+func (gameSetting *GameSetting) Scan(src any) error {
 	return json.Unmarshal([]byte(src.(string)), &gameSetting)
 }
 
@@ -77,7 +77,7 @@ type GameResult struct {
 	BStat  UserGameStat `json:"b_stat" mapstructure:"b_stat"`
 }
 
-func (gameResult *GameResult) Scan(src interface{}) error {
+func (gameResult *GameResult) Scan(src any) error {
 	return json.Unmarshal([]byte(src.(string)), &gameResult)
 }
 
@@ -90,7 +90,7 @@ type GameTicks struct {
 	Ticks []GameTick `json:"ticks"`
 }
 
-func (gameTicks *GameTicks) Scan(src interface{}) error {
+func (gameTicks *GameTicks) Scan(src any) error {
 	return json.Unmarshal([]byte(src.(string)), &gameTicks)
 }
 

@@ -1,8 +1,8 @@
 package game
 
 type Message struct {
-	Event string      `json:"event"`
-	Data  interface{} `json:"data"`
+	Event string `json:"event"`
+	Data  any    `json:"data"`
 }
 
 type AuthData struct {
