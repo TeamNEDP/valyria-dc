@@ -48,6 +48,13 @@ func handleGameEnd(process *game.GameProcess, result game.GameResult) {
 		r.Rating = int(math.Round(float64(r.Rating) + 32.0*(sa-ea)))
 		b.Rating = int(math.Round(float64(b.Rating) + 32.0*(sb-eb)))
 
+		if r.Rating < 0 {
+			r.Rating = 0
+		}
+		if b.Rating < 0 {
+			b.Rating = 0
+		}
+
 		err := db.Transaction(func(tx *gorm.DB) error {
 			if err := tx.Save(&r).Error; err != nil {
 				return err
