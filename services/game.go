@@ -2,7 +2,9 @@ package services
 
 import (
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"log"
+	"math"
 	"strconv"
 	"time"
 	"valyria-dc/game"
@@ -11,7 +13,10 @@ import (
 
 func handleGameEnd(process *game.GameProcess, result game.GameResult) {
 	g := model.Game{}
-	err := db.Where("id=?", process.ID).First(&g).Error
+	err := db.
+		Preload("RScript.User").
+		Preload("BScript.User").
+		Where("id=?", process.ID).First(&g).Error
 	if err != nil {
 		log.Printf("Error querying game: %v\n", err)
 		return
@@ -23,6 +28,36 @@ func handleGameEnd(process *game.GameProcess, result game.GameResult) {
 	g.Finished = true
 
 	db.Save(&g)
+
+	if g.Official {
+		r := g.RScript.User
+		b := g.BScript.User
+		sa := 0.0
+		sb := 0.0
+		if g.Result.Winner == "R" {
+			sa = 1.0
+		} else if g.Result.Winner == "B" {
+			sb = 1.0
+		} else {
+			sa = 0.5
+			sb = 0.5
+		}
+		ea := 1.0 / (1 + math.Pow(10, float64(r.Rating-b.Rating)/32.0))
+		eb := 1.0 / (1 + math.Pow(10, float64(b.Rating-r.Rating)/32.0))
+
+		r.Rating = int(math.Round(float64(r.Rating) + 32.0*(sa-ea)))
+		b.Rating = int(math.Round(float64(b.Rating) + 32.0*(sb-eb)))
+
+		err := db.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Save(&r).Error; err != nil {
+				return err
+			}
+			return tx.Save(&b).Error
+		})
+		if err != nil {
+			log.Printf("Failed to save rating change: %v\n", err)
+		}
+	}
 }
 
 type UserGameEntry struct {
