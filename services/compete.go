@@ -113,6 +113,7 @@ func startCompetition(r model.UserCompetition, b model.UserCompetition) {
 	}
 
 	g := model.Game{
+		ID:        randCode(8),
 		Finished:  false,
 		RScriptID: r.UserScriptID,
 		BScriptID: b.UserScriptID,
