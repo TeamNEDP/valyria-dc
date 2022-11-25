@@ -3,10 +3,40 @@ package services
 import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
+	"log"
+	"time"
+	"valyria-dc/game"
 	"valyria-dc/model"
 )
 
 func competeEndpoints(r *gin.RouterGroup) {
+	go func() {
+		left := false
+		for {
+			var cp []model.UserCompetition
+			db.
+				Preload("UserScript").
+				Joins("left join on user_competitions.user_id=user.id").
+				Order("users.rating").
+				Find(&cp)
+			if (len(cp) & 1) == 0 {
+				for i := 0; (i + 1) < len(cp); i += 2 {
+					startCompetition(cp[i], cp[i+1])
+				}
+			} else {
+				i := 1
+				if left {
+					i = 0
+				}
+				for ; (i + 1) < len(cp); i += 2 {
+					startCompetition(cp[i], cp[i+1])
+				}
+				left = !left
+			}
+			time.Sleep(time.Minute * 10)
+		}
+	}()
+
 	g := r.Group("", AuthRequired())
 
 	g.GET("", userCompetitionStatus)
@@ -59,4 +89,42 @@ func userCompetitionSet(ctx *gin.Context) {
 	}
 
 	ctx.JSON(resOk(nil))
+}
+
+func startCompetition(r model.UserCompetition, b model.UserCompetition) {
+	gameSetting := game.GameSetting{
+		Map: game.RandMap(),
+		Users: map[string]game.GameUser{
+			"r": {
+				ID: r.UserID,
+				Script: game.UserScript{
+					Type:    "javascript",
+					Content: &r.UserScript.Code,
+				},
+			},
+			"b": {
+				ID: b.UserID,
+				Script: game.UserScript{
+					Type:    "javascript",
+					Content: &b.UserScript.Code,
+				},
+			},
+		},
+	}
+
+	g := model.Game{
+		Finished:  false,
+		RScriptID: r.UserScriptID,
+		BScriptID: b.UserScriptID,
+		Official:  true,
+		Setting:   gameSetting,
+		Ticks:     game.GameTicks{},
+		Result:    game.GameResult{},
+		CreatedAt: time.Now(),
+	}
+	if err := db.Save(&g).Error; err != nil {
+		log.Printf("Failed to start competition: %v\n", err)
+		return
+	}
+	game.StartGame(g.ID, gameSetting)
 }
