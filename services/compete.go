@@ -16,7 +16,7 @@ func competeEndpoints(r *gin.RouterGroup) {
 			var cp []model.UserCompetition
 			db.
 				Preload("UserScript").
-				Joins("left join on user_competitions.user_id=user.id").
+				Joins("left join users on user_competitions.user_id=users.id").
 				Order("users.rating").
 				Find(&cp)
 			if (len(cp) & 1) == 0 {

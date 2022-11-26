@@ -43,13 +43,12 @@ func StartGame(id string, setting GameSetting) {
 func IsRunning(id string) bool {
 	gamesMu.Lock()
 	game, ok := games[id]
+	gamesMu.Unlock()
 	if !ok {
-		gamesMu.Unlock()
 		return false
 	}
 	game.mu.Lock()
 	defer func() {
-		gamesMu.Unlock()
 		game.mu.Unlock()
 	}()
 	return games[id].allocatedSession != ""
