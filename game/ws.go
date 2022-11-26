@@ -5,15 +5,15 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/mitchellh/mapstructure"
+	"github.com/sasha-s/go-deadlock"
 	"log"
 	"net/http"
 	"os"
-	"sync"
 	"time"
 )
 
 type simulatorSession struct {
-	mu         sync.Mutex
+	mu         deadlock.Mutex
 	id         string
 	authorized bool
 	slots      uint
@@ -22,7 +22,7 @@ type simulatorSession struct {
 }
 
 var sessions = map[string]*simulatorSession{}
-var sessionsMu = sync.Mutex{}
+var sessionsMu = deadlock.Mutex{}
 
 var handleGameEnd = func(process *GameProcess, result GameResult) {}
 

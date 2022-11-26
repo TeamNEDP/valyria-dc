@@ -3,8 +3,8 @@ package game
 import (
 	"github.com/gorilla/websocket"
 	"github.com/grafov/bcast"
+	"github.com/sasha-s/go-deadlock"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -13,7 +13,7 @@ type GameIntro struct {
 	Ticks []GameTick `json:"ticks"`
 }
 
-var livesMu = sync.Mutex{}
+var livesMu = deadlock.Mutex{}
 var lives = map[string]*bcast.Group{}
 
 func ServeLive(id string, w http.ResponseWriter, r *http.Request) {

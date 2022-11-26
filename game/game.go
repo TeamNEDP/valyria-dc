@@ -2,8 +2,8 @@ package game
 
 import (
 	"github.com/grafov/bcast"
+	"github.com/sasha-s/go-deadlock"
 	"log"
-	"sync"
 	"time"
 )
 
@@ -13,10 +13,10 @@ type GameProcess struct {
 	Ticks            []GameTick
 	lastUpdated      time.Time
 	allocatedSession string
-	mu               sync.Mutex
+	mu               deadlock.Mutex
 }
 
-var gamesMu = sync.Mutex{}
+var gamesMu = deadlock.Mutex{}
 var games = map[string]*GameProcess{}
 
 func StartGame(id string, setting GameSetting) {
