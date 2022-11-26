@@ -70,9 +70,11 @@ func allocateGame(process *GameProcess) {
 	for _, session := range sessions {
 		session.mu.Lock()
 		if !session.authorized {
+			session.mu.Unlock()
 			continue
 		}
 		if session.slots < session.running {
+			session.mu.Unlock()
 			continue
 		}
 		session.running++
