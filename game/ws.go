@@ -118,6 +118,7 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 			}
 			gamesMu.Lock()
 			game, ok := games[data.ID]
+			gamesMu.Unlock()
 			if ok {
 				game.mu.Lock()
 				game.lastUpdated = time.Now()
@@ -129,7 +130,6 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 				}
 				game.mu.Unlock()
 			}
-			gamesMu.Unlock()
 		} else if message.Event == "gameEnd" {
 			data := GameEndData{}
 			err := mapstructure.Decode(message.Data, &data)
@@ -144,11 +144,11 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 			livesMu.Unlock()
 			gamesMu.Lock()
 			game := games[data.ID]
+			gamesMu.Unlock()
 			game.mu.Lock()
 			handleGameEnd(game, data.Result)
 			game.mu.Unlock()
 			delete(games, data.ID)
-			gamesMu.Unlock()
 		} else {
 			log.Printf("Invalid event type received from simulator: %s\n", message.Event)
 			return
