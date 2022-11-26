@@ -33,6 +33,10 @@ func StartGame(id string, setting GameSetting) {
 	gamesMu.Unlock()
 
 	livesMu.Lock()
+	oldLive, ok := lives[id]
+	if ok {
+		oldLive.Close()
+	}
 	lives[id] = bcast.NewGroup()
 	go lives[id].Broadcast(0)
 	livesMu.Unlock()
