@@ -42,8 +42,8 @@ func handleGameEnd(process *game.GameProcess, result game.GameResult) {
 			sa = 0.5
 			sb = 0.5
 		}
-		ea := 1.0 / (1 + math.Pow(10, float64(r.Rating-b.Rating)/32.0))
-		eb := 1.0 / (1 + math.Pow(10, float64(b.Rating-r.Rating)/32.0))
+		ea := 1.0 / (1 + math.Pow(10, float64(b.Rating-r.Rating)/32.0))
+		eb := 1.0 / (1 + math.Pow(10, float64(r.Rating-b.Rating)/32.0))
 
 		r.Rating = int(math.Round(float64(r.Rating) + 32.0*(sa-ea)))
 		b.Rating = int(math.Round(float64(b.Rating) + 32.0*(sb-eb)))
