@@ -69,6 +69,17 @@ func userCompetitionSet(ctx *gin.Context) {
 		ctx.JSON(invalidParams("invalid competition arguments"))
 		return
 	}
+
+	if name == nil {
+		err := db.Unscoped().Where("user_id=?", user.ID).Delete(&model.UserCompetition{}).Error
+		if err != nil {
+			ctx.JSON(internalError(err.Error()))
+			return
+		}
+		ctx.JSON(resOk(nil))
+		return
+	}
+
 	script := model.UserScript{}
 	if err := db.Where("user_id=?", user.ID).Where("name=?", name).First(&script).Error; err != nil {
 		ctx.JSON(notFound("script not found"))
@@ -76,7 +87,7 @@ func userCompetitionSet(ctx *gin.Context) {
 	}
 
 	err := db.Transaction(func(tx *gorm.DB) error {
-		tx.Where("user_id=?", user.ID).Delete(&model.UserCompetition{})
+		tx.Unscoped().Where("user_id=?", user.ID).Delete(&model.UserCompetition{})
 		return db.Save(&model.UserCompetition{
 			UserID:       user.ID,
 			UserScriptID: script.ID,
