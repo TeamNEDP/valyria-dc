@@ -88,7 +88,7 @@ func userCompetitionSet(ctx *gin.Context) {
 
 	err := db.Transaction(func(tx *gorm.DB) error {
 		tx.Unscoped().Where("user_id=?", user.ID).Delete(&model.UserCompetition{})
-		return db.Save(&model.UserCompetition{
+		return tx.Save(&model.UserCompetition{
 			UserID:       user.ID,
 			UserScriptID: script.ID,
 		}).Error
