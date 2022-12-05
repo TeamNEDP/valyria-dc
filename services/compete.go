@@ -51,7 +51,7 @@ type CompetitionStatus struct {
 func userCompetitionStatus(ctx *gin.Context) {
 	user := ctx.MustGet("user").(model.User)
 	c := model.UserCompetition{}
-	if err := db.Preload("UserScript").Where("user_id=?", user.ID).Error; err != nil {
+	if err := db.Preload("UserScript").Where("user_id=?", user.ID).First(&c).Error; err != nil {
 		ctx.JSON(resOk(CompetitionStatus{Involved: false}))
 		return
 	}
