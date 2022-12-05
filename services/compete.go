@@ -64,7 +64,7 @@ func userCompetitionStatus(ctx *gin.Context) {
 func userCompetitionSet(ctx *gin.Context) {
 	user := ctx.MustGet("user").(model.User)
 
-	var name *string
+	var name any
 	if err := ctx.ShouldBindJSON(&name); err != nil {
 		ctx.JSON(invalidParams("invalid competition arguments"))
 		return
@@ -77,6 +77,12 @@ func userCompetitionSet(ctx *gin.Context) {
 			return
 		}
 		ctx.JSON(resOk(nil))
+		return
+	}
+
+	name, ok := name.(string)
+	if !ok {
+		ctx.JSON(invalidParams("invalid competition arguments"))
 		return
 	}
 
