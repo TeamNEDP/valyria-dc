@@ -74,6 +74,8 @@ type UserGameEntry struct {
 	Status   string           `json:"status"`
 	Official bool             `json:"official"`
 	Result   *game.GameResult `json:"result,omitempty"`
+	RUserID  string           `json:"r_user_id"`
+	BUserID  string           `json:"b_user_id"`
 }
 
 type GameDetails struct {
@@ -215,6 +217,8 @@ func listGames(ctx *gin.Context) {
 			ID:       v.ID,
 			Date:     v.CreatedAt.Unix(),
 			Official: v.Official,
+			RUserID:  v.RScript.UserID,
+			BUserID:  v.BScript.UserID,
 		}
 		if v.RScript.UserID == user.ID {
 			entry.Role = "R"
