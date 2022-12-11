@@ -137,6 +137,9 @@ func ServeWs(w http.ResponseWriter, r *http.Request) {
 				log.Printf("Invalid gameEnd data received from simulator: %v\n", err)
 				return
 			}
+			session.mu.Lock()
+			session.running--
+			session.mu.Unlock()
 			livesMu.Lock()
 			lives[data.ID].Send(nil)
 			lives[data.ID].Close()
