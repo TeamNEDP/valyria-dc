@@ -6,7 +6,7 @@ import (
 )
 
 const MapWidth = 5
-const MapHeight = 5
+const MapHeight = 6
 
 func RandMap() GameMap {
 	rand.Seed(time.Now().UnixNano())
