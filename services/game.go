@@ -98,16 +98,16 @@ func gameEndpoints(r *gin.RouterGroup) {
 		go game.StartGame(g.ID, g.Setting)
 	}
 
-	g := r.Group("", AuthRequired())
+	g := r.Group("")
 
-	g.GET("/", listGames)
+	g.GET("/", AuthRequired(), listGames)
 	each := g.Group("/:id", queryGame)
 	each.GET("/details", gameDetails)
 	each.GET("/live", func(ctx *gin.Context) {
 		game.ServeLive(ctx.Param("id"), ctx.Writer, ctx.Request)
 	})
 
-	g.POST("/custom", func(ctx *gin.Context) {
+	g.POST("/custom", AuthRequired(), func(ctx *gin.Context) {
 		user := ctx.MustGet("user").(model.User)
 		form := CustomGameForm{}
 		if err := ctx.ShouldBindJSON(&form); err != nil {
